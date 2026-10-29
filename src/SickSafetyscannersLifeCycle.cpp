@@ -173,7 +173,11 @@ void SickSafetyscannersLifeCycle::receiveUDPPaket(
     m_output_paths_publisher->publish(std::move(output_paths));
   }
 
-  m_last_raw_msg = m_config.m_msg_creator->createRawDataMsg(data);
-  m_raw_data_publisher->publish(m_last_raw_msg);
+  auto raw_msg =
+      std::make_unique<sick_safetyscanners2_interfaces::msg::RawMicroScanData>(
+          m_config.m_msg_creator->createRawDataMsg(data));
+  m_last_data_header = raw_msg->header;
+  m_last_general_system_state = raw_msg->general_system_state;
+  m_raw_data_publisher->publish(std::move(raw_msg));
 }
 } // namespace sick
