@@ -64,6 +64,12 @@ public:
   explicit SickSafetyscannersRos2(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
+  /*!
+   * \brief Destructor stopping the device, so the UDP thread no longer calls
+   * into publishers that are destroyed before the base class members
+   */
+  ~SickSafetyscannersRos2();
+
 private:
   // Publishers
   rclcpp::Publisher<sick_safetyscanners2_interfaces::msg::ExtendedLaserScan>::
