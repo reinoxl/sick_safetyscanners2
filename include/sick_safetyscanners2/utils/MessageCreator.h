@@ -112,6 +112,26 @@ public:
   sick_safetyscanners2_interfaces::msg::RawMicroScanData
   createRawDataMsg(const sick::datastructure::Data &data);
 
+  /*!
+   * \brief Constructs the data header part of the raw message.
+   *
+   * \param data The parsed data from the sensor
+   *
+   * \returns The data header in a ROS2 Message.
+   */
+  sick_safetyscanners2_interfaces::msg::DataHeader
+  createDataHeaderMsg(const sick::datastructure::Data &data);
+
+  /*!
+   * \brief Constructs the general system state part of the raw message.
+   *
+   * \param data The parsed data from the sensor
+   *
+   * \returns The general system state in a ROS2 Message.
+   */
+  sick_safetyscanners2_interfaces::msg::GeneralSystemState
+  createGeneralSystemStateMsg(const sick::datastructure::Data &data);
+
 private:
   std::string m_frame_id;
   double m_time_offset;
@@ -125,12 +145,8 @@ private:
       const std::vector<sick::datastructure::ScanPoint> &scan_points);
 
   // private helper functions to create the parts of the  messages
-  sick_safetyscanners2_interfaces::msg::DataHeader
-  createDataHeaderMsg(const sick::datastructure::Data &data);
   sick_safetyscanners2_interfaces::msg::DerivedValues
   createDerivedValuesMsg(const sick::datastructure::Data &data);
-  sick_safetyscanners2_interfaces::msg::GeneralSystemState
-  createGeneralSystemStateMsg(const sick::datastructure::Data &data);
   sick_safetyscanners2_interfaces::msg::MeasurementData
   createMeasurementDataMsg(const sick::datastructure::Data &data);
   std::vector<sick_safetyscanners2_interfaces::msg::ScanPoint>
