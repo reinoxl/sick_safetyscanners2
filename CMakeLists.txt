@@ -23,7 +23,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(sick_safetyscanners_base REQUIRED)
+find_package(sick_safetyscanners_base 1.0.5 REQUIRED)
 find_package(sick_safetyscanners2_interfaces REQUIRED)
 
 set(dependencies
