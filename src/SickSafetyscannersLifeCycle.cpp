@@ -160,24 +160,38 @@ void SickSafetyscannersLifeCycle::receiveUDPPaket(
     auto scan = std::make_unique<sensor_msgs::msg::LaserScan>(
         m_config.m_msg_creator->createLaserScanMsg(data, this->now()));
     // copies *scan, so it has to be built before scan is moved out
-    auto extended_scan = std::make_unique<
-        sick_safetyscanners2_interfaces::msg::ExtendedLaserScan>(
-        m_config.m_msg_creator->createExtendedLaserScanMsg(data, *scan));
+    std::unique_ptr<sick_safetyscanners2_interfaces::msg::ExtendedLaserScan>
+        extended_scan;
+    if (m_extended_laser_scan_publisher->get_subscription_count() > 0) {
+      extended_scan = std::make_unique<
+          sick_safetyscanners2_interfaces::msg::ExtendedLaserScan>(
+          m_config.m_msg_creator->createExtendedLaserScanMsg(data, *scan));
+    }
 
+    // always published, the diagnosed publisher tracks the scan frequency
     m_diagnosed_laser_scan_publisher->publish(std::move(scan));
-    m_extended_laser_scan_publisher->publish(std::move(extended_scan));
+    if (extended_scan) {
+      m_extended_laser_scan_publisher->publish(std::move(extended_scan));
+    }
 
-    auto output_paths =
-        std::make_unique<sick_safetyscanners2_interfaces::msg::OutputPaths>(
-            m_config.m_msg_creator->createOutputPathsMsg(data));
-    m_output_paths_publisher->publish(std::move(output_paths));
+    if (m_output_paths_publisher->get_subscription_count() > 0) {
+      auto output_paths =
+          std::make_unique<sick_safetyscanners2_interfaces::msg::OutputPaths>(
+              m_config.m_msg_creator->createOutputPathsMsg(data));
+      m_output_paths_publisher->publish(std::move(output_paths));
+    }
   }
 
-  auto raw_msg =
-      std::make_unique<sick_safetyscanners2_interfaces::msg::RawMicroScanData>(
-          m_config.m_msg_creator->createRawDataMsg(data));
-  m_last_data_header = raw_msg->header;
-  m_last_general_system_state = raw_msg->general_system_state;
-  m_raw_data_publisher->publish(std::move(raw_msg));
+  // needed by the diagnostics, also without raw data subscribers
+  m_last_data_header = m_config.m_msg_creator->createDataHeaderMsg(data);
+  m_last_general_system_state =
+      m_config.m_msg_creator->createGeneralSystemStateMsg(data);
+
+  if (m_raw_data_publisher->get_subscription_count() > 0) {
+    auto raw_msg = std::make_unique<
+        sick_safetyscanners2_interfaces::msg::RawMicroScanData>(
+        m_config.m_msg_creator->createRawDataMsg(data));
+    m_raw_data_publisher->publish(std::move(raw_msg));
+  }
 }
 } // namespace sick
